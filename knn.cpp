@@ -53,7 +53,7 @@ int classifyImageData(ImageData arr[], int n, int k, ImageData p,int numClasses)
     // Consider first k elements and count frequencies of each class
     for (int i = 0; i < k; i++)
     {
-        frequencies[arr[i].trueLabel]++;
+        frequencies[arr[i].trueLabel-1]++;
     }
 
     // Find the class with the highest frequency among k neighbors
@@ -67,12 +67,5 @@ int classifyImageData(ImageData arr[], int n, int k, ImageData p,int numClasses)
             predictedClass = i;
         }
     }
-    predictedClass++;
-    if(predictedClass == 1){
-        predictedClass = 9;
-    }
-    else{
-        predictedClass--;
-    }
-    return predictedClass;
+    return predictedClass+1;
 }
