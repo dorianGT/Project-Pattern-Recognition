@@ -34,7 +34,7 @@ double calculateDistanceManhattan(std::vector<float> features1, std::vector<floa
 
 // Used to sort an array of ImageDatas by increasing order of distance
 bool comparison(ImageData a, ImageData b) {
-    return (a.distance < b.distance);
+    return (a.distance <= b.distance);
 }
 
 int classifyImageData(ImageData arr[], int n, int k, ImageData p,int numClasses) {
@@ -53,7 +53,7 @@ int classifyImageData(ImageData arr[], int n, int k, ImageData p,int numClasses)
     // Consider first k elements and count frequencies of each class
     for (int i = 0; i < k; i++)
     {
-        frequencies[arr[i].val]++;
+        frequencies[arr[i].trueLabel]++;
     }
 
     // Find the class with the highest frequency among k neighbors
@@ -67,5 +67,12 @@ int classifyImageData(ImageData arr[], int n, int k, ImageData p,int numClasses)
             predictedClass = i;
         }
     }
-
-    return predictedClass;}
+    predictedClass++;
+    if(predictedClass == 1){
+        predictedClass = 9;
+    }
+    else{
+        predictedClass--;
+    }
+    return predictedClass;
+}
