@@ -10,7 +10,7 @@
 using namespace std;
 
 int numClasses = 9;
-string className = "E34";
+string className = "GFD";
 std::map<string, int> map1 = {
     {"E34", 16},
     {"F0", 128},
@@ -32,7 +32,7 @@ double calculateDistance(vector<float> features1, vector<float> features2)
     double sum = 0.0;
     // Ensure both vectors have the same size
     if (features1.size() != features2.size()) {
-        cerr << "Error: Vectors do not have the same size." << endl;
+        //cerr << "Error: Vectors do not have the same size." << endl;
         return -1.0; // Or use appropriate error handling
     }
 
@@ -48,7 +48,7 @@ double calculateDistanceManhattan(vector<float> features1, vector<float> feature
     double sum = 0.0;
     // Ensure both vectors have the same size
     if (features1.size() != features2.size()) {
-        cerr << "Error: Vectors do not have the same size." << endl;
+        //cerr << "Error: Vectors do not have the same size." << endl;
         return -1.0; // Or use appropriate error handling
     }
 
