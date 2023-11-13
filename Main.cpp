@@ -59,7 +59,7 @@ void displayConfusionMatrix(const vector<vector<int>>& confusionMatrix, int numC
     }
 }
 
-void ShowResults(int numClasses,vector<ImageData>& dataResult){
+int ShowResults(int numClasses,vector<ImageData>& dataResult){
     // Initialize confusion matrix
     vector<vector<int>> confusionMatrix(numClasses, vector<int>(numClasses, 0));
 
@@ -80,6 +80,7 @@ void ShowResults(int numClasses,vector<ImageData>& dataResult){
     // Calculate and print the success percentage for this value of k
     double successPercentage = (static_cast<double>(vp) / dataResult.size()) * 100;
     printf("Success Percentage: %.2f%% , vp: %d\n", successPercentage, vp);
+    return vp;
 }
 
 void knnRecognition(int numClasses,std::map<std::string, int> map1){
@@ -163,18 +164,29 @@ void knnRecognition(int numClasses,std::map<std::string, int> map1){
         cout << className << endl;
         cout << "---------------------"<< endl;
 
+        vector<int> arrayK(20);
+
         // Vary the value of k from 1 to 6
-        for (int k = 1; k <= 6; ++k) {
+        for (int k = 1; k <= 20; ++k) {
             //int correctClassifications = 0; // Reset the correct classification counter
             // Reset the predicted labels for each iteration
             for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
                 int c = classifyImageData(arr.data(), arr.size(), k, *t, numClasses);
                 t->predictedLabel = c;
             }   
-
-            ShowResults(numClasses,test);
+            cout<<"k = "<<k<<endl;
+            arrayK[k-1] = ShowResults(numClasses,test);
         }
-
+        // Choose the best k
+        int kbestval = 0;
+        int maxVp = 0;
+        for (int k = 0; k < 20; ++k) {
+            if(arrayK[k]>=maxVp){
+                kbestval = k;
+                maxVp = arrayK[k];
+            }
+        }
+        cout<<"BEST K VALUE : "<<kbestval+1<< " WITH VP : "<<maxVp<<endl;
     }
 }
 
