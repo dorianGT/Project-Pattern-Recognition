@@ -8,6 +8,80 @@ using namespace std;
 #include "knn.h" // Include the header file for knn
 #include "kmeans.h" // Include the header file for kmeans
 
+// Define a function to get the number of digits in an integer
+int numDigits(int num) {
+    int count = 0;
+    while (num != 0) {
+        num /= 10;
+        ++count;
+    }
+    return count;
+}
+
+// Function to display the confusion matrix
+void displayConfusionMatrix(const vector<vector<int>>& confusionMatrix, int numClasses) {
+    // Display confusion matrix
+    cout << "Confusion Matrix" << endl;
+    cout << "      ";
+    int maxDigits = 2;
+    for (int i = 0; i < numClasses; ++i) {
+        // Adjust column width based on the maximum number of digits in any matrix element
+        for (int j = 0; j < numClasses; ++j) {
+            int digits = numDigits(confusionMatrix[j][i]);
+            if (digits > maxDigits) {
+                maxDigits = digits;
+            }
+        }
+    }
+    maxDigits+=1;
+    cout << maxDigits<<endl;
+    cout << setw(6) << "C" << 1 << " ";
+    for (int i = 1; i < numClasses; ++i) {
+        cout << setw(maxDigits) << "C" << i + 1 << " ";
+    }
+
+    cout << endl;
+
+    for (int i = 0; i < numClasses; ++i) {
+        cout << "C" << i + 1 << " | ";
+        int digits = numDigits(confusionMatrix[i][0]);
+        cout << setw(2) << confusionMatrix[i][0]<<setw(maxDigits-digits+1);
+        for (int j = 1; j < numClasses; ++j) {
+            // Center-align each matrix element within its column
+            int digits = numDigits(confusionMatrix[i][j]);
+            cout  << confusionMatrix[i][j] ;
+            if(j!=numClasses-1){
+                cout  << setw(maxDigits+digits+1);
+            }
+        }
+        cout << endl;
+    }
+}
+
+void ShowResults(int numClasses,vector<ImageData>& dataResult){
+    // Initialize confusion matrix
+    vector<vector<int>> confusionMatrix(numClasses, vector<int>(numClasses, 0));
+
+    // Populate confusion matrix
+    for (vector<ImageData>::iterator t = dataResult.begin(); t != dataResult.end(); ++t) {
+        confusionMatrix[t->predictedLabel - 1][t->trueLabel - 1]++;
+    }
+
+    // Display confusion matrix
+    cout << "Confusion Matrix" << endl;
+    displayConfusionMatrix(confusionMatrix,numClasses);
+
+    // Calculate true positives
+    int vp = 0;
+    for (int i = 0; i < numClasses; ++i) {
+        vp += confusionMatrix[i][i];
+    }
+
+    // Calculate and print the success percentage for this value of k
+    double successPercentage = (static_cast<double>(vp) / dataResult.size()) * 100;
+    printf("Success Percentage: %.2f%% , vp: %d\n", successPercentage, vp);
+}
+
 void knnRecognition(int numClasses,std::map<std::string, int> map1){
     std::map<std::string, int>::iterator it;
     for (it = map1.begin(); it != map1.end(); ++it) {
@@ -98,110 +172,82 @@ void knnRecognition(int numClasses,std::map<std::string, int> map1){
                 t->predictedLabel = c;
             }   
 
-            // Initialize confusion matrix
-            vector<vector<int>> confusionMatrix(numClasses, vector<int>(numClasses, 0));
-
-            // Populate confusion matrix
-            for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
-                confusionMatrix[t->predictedLabel - 1][t->trueLabel - 1]++;
-            }
-
-            // Display confusion matrix
-            cout << "Confusion Matrix for k=" << k << endl;
-            cout << "      ";
-            for (int i = 0; i < numClasses; ++i) {
-                cout << "C" << i+1 << " ";
-            }
-            cout << endl;
-
-            for (int i = 0; i < numClasses; ++i) {
-                cout << "C" << i+1 << " | ";
-                for (int j = 0; j < numClasses; ++j) {
-                    cout << confusionMatrix[i][j] << "    ";
-                }
-                cout << endl;
-            }
-
-            // Calculate true positives, false positives, and false negatives
-            int vp = 0;
-            for (int i = 0; i < numClasses; ++i) {
-                vp += confusionMatrix[i][i];
-            }
-
-            // Calculate and print the success percentage for this value of k
-            double successPercentage = (static_cast<double>(vp) / test.size()) * 100;
-            printf("k=%d: Success Percentage: %.2f%% , vp: %d\n", k, successPercentage, vp);
+            ShowResults(numClasses,test);
         }
 
     }
 }
 
 void kmeansRecognition(int numClasses,std::map<std::string, int> map1){
-    // Initialisation de `data`
-    vector<ImageData> data;
+    std::map<std::string, int>::iterator it;
+    for (it = map1.begin(); it != map1.end(); ++it) {
+        std::string className = it->first;
+        int numData = it->second;
+        // Initialisation de `data`
+        vector<ImageData> data;
 
-    DIR* repertoire;
-    struct dirent* fichier;
-    string d = "E34";
-    repertoire = opendir(d.c_str());
-    if (repertoire == NULL) {
-        std::cout << "Erreur lors de l'ouverture du dossier." << std::endl;
-        return;
-    }
-    if (repertoire) {
-        while ((fichier = readdir(repertoire)) != NULL) {
-            if (fichier->d_name[0] == '.') continue; // Ignore hidden files
+        DIR* repertoire;
+        struct dirent* fichier;
+        repertoire = opendir(className.c_str());
+        if (repertoire == NULL) {
+            std::cout << "Erreur lors de l'ouverture du dossier." << std::endl;
+            return;
+        }
+        if (repertoire) {
+            while ((fichier = readdir(repertoire)) != NULL) {
+                if (fichier->d_name[0] == '.') continue; // Ignore hidden files
 
-            // Create the full file path
-            string filePath = d+"/" + string(fichier->d_name);
+                // Create the full file path
+                string filePath = className+"/" + string(fichier->d_name);
 
-            // Open the file in read mode
-            ifstream file(filePath);
-            if (file.is_open()) {
-                ImageData p(16);
-                int classLabel = stoi(fichier->d_name + 1); // Extract class number from the file name
-                p.trueLabel = classLabel;
-                //cout << p.trueLabel;
-                // Read the values from the file and store them in the features array
-                for (int i = 0; i < 16; ++i) {
-                    float value;
-                    file >> value;
-                    p.features[i] = value;
+                // Open the file in read mode
+                ifstream file(filePath);
+                if (file.is_open()) {
+                    ImageData p(numData);
+                    int classLabel = stoi(fichier->d_name + 1); // Extract class number from the file name
+                    p.trueLabel = classLabel;
+                    //cout << p.trueLabel;
+                    // Read the values from the file and store them in the features array
+                    for (int i = 0; i < numData; ++i) {
+                        float value;
+                        file >> value;
+                        p.features[i] = value;
+                    }
+
+                    // Add the ImageData to the vector
+                    data.push_back(p);
+
+                    // Close the file
+                    file.close();
                 }
-
-                // Add the ImageData to the vector
-                data.push_back(p);
-
-                // Close the file
-                file.close();
             }
         }
-    }
 
-    closedir(repertoire); // Fermer le rep
-    
-    // Afficher les features de data
-    /*
-    int index =1;
-    for (const auto& imageData : data) {
-        std::cout << "Data " << index << " :" ;
-        for (const auto& feature : imageData.features) {
-            std::cout << " " << feature;
+        closedir(repertoire); // Fermer le rep
+        
+        // Afficher les features de data
+        /*
+        int index =1;
+        for (const auto& imageData : data) {
+            std::cout << "Data " << index << " :" ;
+            for (const auto& feature : imageData.features) {
+                std::cout << " " << feature;
+            }
+            index++;
+            std::cout << std::endl;
         }
-        index++;
-        std::cout << std::endl;
+        */
+
+        // Initialize the centroids
+        vector<vector<float>> centroids;
+        //init_centroids(centroids, data, numClasses);
+        //assign_data_to_clusters(data,centroids);
+        //update_centroids(data,centroids);
+        cout<< className<<endl;
+        kmeans(data,numClasses,centroids,500);
+        ShowResults(numClasses,data);
     }
-    */
-
-    // Initialize the centroids
-    vector<vector<float>> centroids;
-    //init_centroids(centroids, data, numClasses);
-    //assign_data_to_clusters(data,centroids);
-    //update_centroids(data,centroids);
-    kmeans(data,numClasses,centroids,200);
 }
-
-
 
 int main() {
     int numClasses = 9;

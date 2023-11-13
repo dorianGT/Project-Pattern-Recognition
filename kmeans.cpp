@@ -58,9 +58,9 @@ void assign_data_to_clusters(vector<ImageData>& data, vector<vector<float>>& cen
         // Data est associe au centroid le plus proche (+1 car sinon sa commence à 0)
         data[i].predictedLabel = closest_centroid_index + 1;
     }
-    for (int i = 0; i < data.size(); i++) {
+    /*for (int i = 0; i < data.size(); i++) {
         cout << "fichier " << i+1<< " : "<< "Label : " << data[i].trueLabel << " Label Predit : "<< data[i].predictedLabel << endl;
-    }
+    }*/
 
 }
 
