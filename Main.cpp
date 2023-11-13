@@ -24,8 +24,9 @@ void displayConfusionMatrix(const vector<vector<int>>& confusionMatrix, int numC
     cout << "Confusion Matrix" << endl;
     cout << "      ";
     int maxDigits = 2;
+
+    // Adjust column width based on the maximum number of digits in any matrix element
     for (int i = 0; i < numClasses; ++i) {
-        // Adjust column width based on the maximum number of digits in any matrix element
         for (int j = 0; j < numClasses; ++j) {
             int digits = numDigits(confusionMatrix[j][i]);
             if (digits > maxDigits) {
@@ -33,11 +34,13 @@ void displayConfusionMatrix(const vector<vector<int>>& confusionMatrix, int numC
             }
         }
     }
-    maxDigits+=1;
-    cout << maxDigits<<endl;
-    cout << setw(6) << "C" << 1 << " ";
+
+    // Set a minimum column width
+    maxDigits = max(maxDigits, 3);
+
+    cout << setw(3) << "C1 ";
     for (int i = 1; i < numClasses; ++i) {
-        cout << setw(maxDigits) << "C" << i + 1 << " ";
+        cout << setw(2) << "C" << i + 1 << " ";
     }
 
     cout << endl;
@@ -45,14 +48,12 @@ void displayConfusionMatrix(const vector<vector<int>>& confusionMatrix, int numC
     for (int i = 0; i < numClasses; ++i) {
         cout << "C" << i + 1 << " | ";
         int digits = numDigits(confusionMatrix[i][0]);
-        cout << setw(2) << confusionMatrix[i][0]<<setw(maxDigits-digits+1);
+        cout << setw(maxDigits) << confusionMatrix[i][0] << " ";
+
         for (int j = 1; j < numClasses; ++j) {
             // Center-align each matrix element within its column
             int digits = numDigits(confusionMatrix[i][j]);
-            cout  << confusionMatrix[i][j] ;
-            if(j!=numClasses-1){
-                cout  << setw(maxDigits+digits+1);
-            }
+            cout << setw(maxDigits) << confusionMatrix[i][j] << " ";
         }
         cout << endl;
     }
@@ -68,7 +69,6 @@ void ShowResults(int numClasses,vector<ImageData>& dataResult){
     }
 
     // Display confusion matrix
-    cout << "Confusion Matrix" << endl;
     displayConfusionMatrix(confusionMatrix,numClasses);
 
     // Calculate true positives
@@ -243,8 +243,10 @@ void kmeansRecognition(int numClasses,std::map<std::string, int> map1){
         //init_centroids(centroids, data, numClasses);
         //assign_data_to_clusters(data,centroids);
         //update_centroids(data,centroids);
-        cout<< className<<endl;
-        kmeans(data,numClasses,centroids,500);
+        cout << "---------------------"<< endl;
+        cout << className << endl;
+        cout << "---------------------"<< endl;
+        kmeans(data,numClasses,centroids,100);
         ShowResults(numClasses,data);
     }
 }
