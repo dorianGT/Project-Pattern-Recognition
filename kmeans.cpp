@@ -5,42 +5,9 @@
 #include <sys/types.h>
 #include <vector>
 #include <map>
-
+#include "ImageData.h"
+#include "kmeans.h"
 using namespace std;
-
-int numClasses = 9;
-string className = "E34";
-std::map<string, int> map1 = {
-    {"E34", 16},
-    {"F0", 128},
-    {"GFD", 100},
-    {"SA", 90}};
-
-struct ImageData
-{
-    int trueLabel; // Class of the image
-    int predictedLabel; // The predicted class
-    vector<float> features; // Feature vector
-    double distance; // Distance from the test ImageData
-
-    ImageData(int size) : features(size, 0) {} // Initialize the feature vector
-};
-
-// Function to calculate Euclidean distance between two feature vectors
-double calculateDistance(vector<float> features1, vector<float> features2)
-{
-    double sum = 0.0;
-    // Ensure both vectors have the same size
-    if (features1.size() != features2.size()) {
-        cerr << "Error: Vectors do not have the same size." << endl;
-        return -1.0; // Or use appropriate error handling
-    }
-
-    for (int i = 0; i < features1.size(); ++i) {
-        sum += pow(features1[i] - features2[i], 2);
-    }
-    return sqrt(sum);
-}
 
 // Initialise centroides
 void init_centroids(vector<vector<float>>& centroids, const vector<ImageData>& data, int k)
@@ -154,70 +121,4 @@ void kmeans(vector<ImageData>& data, int k, vector<vector<float>>& centroids, in
         }
     }
     cout << "Nombre d'iterations : " << iteration << endl;
-}
-
-
-int main() {
-
-    // Initialisation de `data`
-    vector<ImageData> data;
-
-    string dossier = "C:\\Users\\jiang\\OneDrive\\Documents\\RF\\E34";
-    DIR* repertoire;
-    struct dirent* fichier;
-    repertoire = opendir(dossier.c_str());
-    if (repertoire == NULL) {
-        std::cout << "Erreur lors de l'ouverture du dossier." << std::endl;
-        return 1;
-    }
-        // Parcourir les fichiers du dossier
-    while ((fichier = readdir(repertoire)) != NULL) {
-        std::string nomFichier = fichier->d_name;
-        // Vérifier si le fichier est un fichier E34 en vérifiant l'extension
-        if (nomFichier.find(".E34") != std::string::npos) {
-            std::ifstream fichierE34(dossier + "\\" + nomFichier); // Ouvrir le fichier E34
-
-            if (fichierE34) {
-                std::string ligne;
-                std::vector<float> valeurs; // Vecteur temp pour stocker les valeurs
-                // Lire chaque ligne du fichier
-                while (getline(fichierE34, ligne)) {
-                    float valeur = stof(ligne);
-                    valeurs.push_back(valeur); // Stocker la valeur lue dans le vecteur
-                }
-                ImageData imageData(valeurs.size());
-                // Récupérer le deuxième chiffre du nom du fichier = la classe 
-                int truelabel = std::stoi(nomFichier.substr(2, 1));
-                imageData.features = valeurs;
-                imageData.trueLabel = truelabel;
-                fichierE34.close(); // Fermer le fichier E34
-                data.push_back(imageData); // Met a jour le vecteur data
-            }
-            else {
-                std::cout << "Erreur lors de l'ouverture du fichier : " << nomFichier << std::endl;
-            }
-        }
-    }
-    closedir(repertoire); // Fermer le rep
-
-    // Afficher les features de data
-    /*
-    int index =1;
-    for (const auto& imageData : data) {
-        std::cout << "Data " << index << " :" ;
-        for (const auto& feature : imageData.features) {
-            std::cout << " " << feature;
-        }
-        index++;
-        std::cout << std::endl;
-    }
-    */
-    
-    // Initialize the centroids
-    vector<vector<float>> centroids;
-    //init_centroids(centroids, data, numClasses);
-    //assign_data_to_clusters(data,centroids);
-    //update_centroids(data,centroids);
-    kmeans(data,numClasses,centroids,200);
-    return 0;
 }

@@ -6,16 +6,9 @@
 #include <map>
 using namespace std;
 #include "knn.h" // Include the header file for knn
+#include "kmeans.h" // Include the header file for kmeans
 
-int main() {
-    int numClasses = 9;
-    std::map<std::string, int> map1 = {
-        {"E34", 16},
-        {"F0", 128},
-        {"GFD", 100},
-        {"SA", 90}
-    };
-
+void knnRecognition(int numClasses,std::map<std::string, int> map1){
     std::map<std::string, int>::iterator it;
     for (it = map1.begin(); it != map1.end(); ++it) {
         std::string className = it->first;
@@ -103,30 +96,13 @@ int main() {
             for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
                 int c = classifyImageData(arr.data(), arr.size(), k, *t, numClasses);
                 t->predictedLabel = c;
-                    /*if (t->predictedLabel == 0){
-                        cout <<"pl :"<<t->predictedLabel<< " "<< c<<" "<<endl;  
-                    }*/
-                /*if (c == t->trueLabel) {
-                    //printf("Classification Correct\n");
-                    correctClassifications++; // Increment the correct classification counter
-                } else {
-                    //printf("Classification Incorrect\n");
-                }*/
             }   
-
-            // Calculate and print the success percentage for this value of k
-            //double successPercentag = (static_cast<double>(correctClassifications) / test.size()) * 100;
-            //printf("Success Percentage for k=%d: %.2f%%\n", k, successPercentag);
 
             // Initialize confusion matrix
             vector<vector<int>> confusionMatrix(numClasses, vector<int>(numClasses, 0));
 
             // Populate confusion matrix
             for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
-                // if (t->predictedLabel == 0){
-                //     cout <<" pl: "<<t->predictedLabel - 1<<" tl:" << t->trueLabel - 1<< " " <<endl;
-                // }
-                //cout <<" pl: "<<t->predictedLabel - 1<<" tl:" << t->trueLabel - 1<< " " <<endl;
                 confusionMatrix[t->predictedLabel - 1][t->trueLabel - 1]++;
             }
 
@@ -158,6 +134,92 @@ int main() {
         }
 
     }
+}
+
+void kmeansRecognition(int numClasses,std::map<std::string, int> map1){
+    // Initialisation de `data`
+    vector<ImageData> data;
+
+    DIR* repertoire;
+    struct dirent* fichier;
+    string d = "E34";
+    repertoire = opendir(d.c_str());
+    if (repertoire == NULL) {
+        std::cout << "Erreur lors de l'ouverture du dossier." << std::endl;
+        return;
+    }
+    if (repertoire) {
+        while ((fichier = readdir(repertoire)) != NULL) {
+            if (fichier->d_name[0] == '.') continue; // Ignore hidden files
+
+            // Create the full file path
+            string filePath = d+"/" + string(fichier->d_name);
+
+            // Open the file in read mode
+            ifstream file(filePath);
+            if (file.is_open()) {
+                ImageData p(16);
+                int classLabel = stoi(fichier->d_name + 1); // Extract class number from the file name
+                p.trueLabel = classLabel;
+                //cout << p.trueLabel;
+                // Read the values from the file and store them in the features array
+                for (int i = 0; i < 16; ++i) {
+                    float value;
+                    file >> value;
+                    p.features[i] = value;
+                }
+
+                // Add the ImageData to the vector
+                data.push_back(p);
+
+                // Close the file
+                file.close();
+            }
+        }
+    }
+
+    closedir(repertoire); // Fermer le rep
     
+    // Afficher les features de data
+    /*
+    int index =1;
+    for (const auto& imageData : data) {
+        std::cout << "Data " << index << " :" ;
+        for (const auto& feature : imageData.features) {
+            std::cout << " " << feature;
+        }
+        index++;
+        std::cout << std::endl;
+    }
+    */
+
+    // Initialize the centroids
+    vector<vector<float>> centroids;
+    //init_centroids(centroids, data, numClasses);
+    //assign_data_to_clusters(data,centroids);
+    //update_centroids(data,centroids);
+    kmeans(data,numClasses,centroids,200);
+}
+
+
+
+int main() {
+    int numClasses = 9;
+    std::map<std::string, int> map1 = {
+        {"E34", 16},
+        {"F0", 128},
+        {"GFD", 100},
+        {"SA", 90}
+    };
+
+    cout << "---------------------"<< endl;
+    cout << "KNN" << endl;
+    cout << "---------------------"<< endl;
+    knnRecognition(numClasses,map1);
+    cout << "---------------------"<< endl;
+    cout << "KMEANS" << endl;
+    cout << "---------------------"<< endl;
+    kmeansRecognition(numClasses,map1);
+
     return 0;
 }
