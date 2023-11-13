@@ -24,7 +24,7 @@ void knnRecognition(int numClasses,std::map<std::string, int> map1){
                 if (en->d_name[0] == '.') continue; // Ignore hidden files
 
                 // Create the full file path
-                string filePath = className + "/" + string(en->d_name);
+                string filePath = className+"Training" + "/" + string(en->d_name);
 
                 // Open the file in read mode
                 ifstream file(filePath);
