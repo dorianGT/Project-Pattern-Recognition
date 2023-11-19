@@ -251,7 +251,7 @@ void kmeansRecognition(int numClasses,std::map<std::string, int> map1){
         */
 
         // Initialize the centroids
-        vector<vector<float>> centroids;
+        vector<centroid> centroids;
         //init_centroids(centroids, data, numClasses);
         //assign_data_to_clusters(data,centroids);
         //update_centroids(data,centroids);
