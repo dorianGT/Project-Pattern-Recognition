@@ -9,27 +9,38 @@
 #include "kmeans.h"
 using namespace std;
 
-// Initialise centroides
-void init_centroids(vector<vector<float>>& centroids, const vector<ImageData>& data, int k)
+// Initialize centroids
+void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k)
 {
     srand(time(nullptr));
-    for (int i = 0; i < k; i++) {
-        const ImageData& imageData = data[rand() % data.size()];
+    set<int> unique_labels;
+
+    while (centroids.size() < k) {
+        int random_index = rand() % data.size();
+        const ImageData& imageData = data[random_index];
         const vector<float>& features = imageData.features;
-        centroids.push_back(features);
+
+        if (unique_labels.find(imageData.trueLabel) == unique_labels.end()) {
+            centroid centroid(features.size());
+            centroid.label = imageData.trueLabel;
+            centroid.features = features;
+
+            unique_labels.insert(imageData.trueLabel);
+            centroids.push_back(centroid);
+        }
     }
 
 
-    // Afficher les centroides generes
+    // Display centroids
     /*
     cout << "affichage des centroids" << endl;
     int centroid_index = 1; // Variable de compteur pour l'indice du centroid
     
-    for (const auto& centroid : centroids) {
+    for (const centroid& centroid : centroids) {
         cout << "Centroid " << centroid_index << ": ";
         
-        for (const auto& coordinate : centroid) {
-            cout << coordinate << " ";
+        for (const float& feature : centroid.features) {
+            cout << feature << endl;
         }
         
         cout << endl;
@@ -40,14 +51,14 @@ void init_centroids(vector<vector<float>>& centroids, const vector<ImageData>& d
     
 }
 
-void assign_data_to_clusters(vector<ImageData>& data, vector<vector<float>>& centroids) {
-    // Boucle sur tous les datas
+void assign_data_to_clusters(vector<ImageData>& data, vector<centroid>& centroids) {
+    // Loop on datas
     for (int i = 0; i < data.size(); i++) {
         int closest_centroid_index = -1;
         float closest_distance = INFINITY;
         // calcul la distance eucli pour chaque centroides
         for (int j = 0; j < centroids.size(); j++) {
-            float distance = calculateDistance(data[i].features, centroids[j]);
+            float distance = calculateDistance(data[i].features, centroids[j].features);
 
             if (distance < closest_distance) {
                 closest_distance = distance;
@@ -55,24 +66,26 @@ void assign_data_to_clusters(vector<ImageData>& data, vector<vector<float>>& cen
             }
         }
 
-        // Data est associe au centroid le plus proche (+1 car sinon sa commence à 0)
-        data[i].predictedLabel = closest_centroid_index + 1;
+        // assign data to nearest centroid
+        data[i].predictedLabel = centroids[closest_centroid_index].label;
     }
-    /*for (int i = 0; i < data.size(); i++) {
+    /*
+    //Display datas label
+    for (int i = 0; i < data.size(); i++) {
         cout << "fichier " << i+1<< " : "<< "Label : " << data[i].trueLabel << " Label Predit : "<< data[i].predictedLabel << endl;
-    }*/
-
+    }
+    */
 }
 
-void update_centroids(vector<ImageData>& data, vector<vector<float>>& centroids) {
+void update_centroids(vector<ImageData>& data, vector<centroid>& centroids) {
     // Loop over all centroids
     for (int i = 0; i < centroids.size(); i++) {
         // Calculate the sum of the features of all data points assigned to the centroid
-        vector<float> sum(centroids[i].size(), 0);
+        vector<float> sum(centroids[i].features.size(), 0);
         int count = 0;
 
         for (int j = 0; j < data.size(); j++) {
-            if (data[j].predictedLabel == i) {
+            if (data[j].predictedLabel == centroids[i].label) {
                 for (int k = 0; k < sum.size(); k++) {
                     sum[k] += data[j].features[k];
                 }
@@ -83,39 +96,39 @@ void update_centroids(vector<ImageData>& data, vector<vector<float>>& centroids)
         // Update the centroid by taking the average of the features of all data points assigned to it
         if (count > 0) {
             for (int k = 0; k < sum.size(); k++) {
-                centroids[i][k] = sum[k] / count;
+                centroids[i].features[k] = sum[k] / count;
             }
         }
     }
 }
 
-void kmeans(vector<ImageData>& data, int k, vector<vector<float>>& centroids, int max_iterations)
+void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max_iterations)
 {
     int iteration = 0;
     // Initialisation des centroïdes
     init_centroids(centroids, data, k);
 
-    // Boucle principale de l'algorithme
+    // Main loop of algo
     for (iteration = 0; iteration < max_iterations; iteration++) {
 
-        vector<vector<float>> centroids_old = centroids; // Sauvegarde des anciens centroïdes
+        vector<centroid> centroids_old = centroids; // Sauvegarde des anciens centroïdes
 
-        // Assignation des points de données aux clusters
+        // Assign data to clusters
         assign_data_to_clusters(data, centroids);
 
-        // Recalcul des centroïdes
+        // Update the centroids
         update_centroids(data, centroids);
 
-        // Vérification de la convergence
+        // Verify the convergence
         bool converged = true;
         for (int i = 0; i < centroids.size(); i++) {
-            if (centroids[i] != centroids_old[i]) {
+            if (centroids[i].features != centroids_old[i].features) {
                 converged = false;
                 break;
             }
         }
 
-        // Sortie de la boucle si convergence atteinte
+        // Force end of algo if convergence is true
         if (converged) {
             break;
         }
