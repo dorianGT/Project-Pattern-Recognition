@@ -12,4 +12,10 @@ struct ImageData {
     ImageData(int size) : features(size, 0) {} // Initialize the feature vector
 };
 
+struct centroid {
+    int label;
+    std::vector<float> features;
+    centroid(int size) :features(size,0) {}
+};
+
 #endif
