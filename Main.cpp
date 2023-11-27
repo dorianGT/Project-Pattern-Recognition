@@ -65,7 +65,7 @@ int ShowResults(int numClasses,vector<ImageData>& dataResult){
 
     // Populate confusion matrix
     for (vector<ImageData>::iterator t = dataResult.begin(); t != dataResult.end(); ++t) {
-        confusionMatrix[t->predictedLabel - 1][t->trueLabel - 1]++;
+        confusionMatrix[t->trueLabel - 1][t->predictedLabel - 1]++;
     }
 
     // Display confusion matrix
@@ -148,6 +148,7 @@ void knnRecognition(int numClasses,std::map<std::string, int> map1){
                     for (int i = 0; i < numData; ++i) {
                         float value;
                         file >> value;
+                        //cout<<value<<" "endl;
                         p.features[i] = value;
                     }
 
@@ -238,8 +239,8 @@ void kmeansRecognition(int numClasses,std::map<std::string, int> map1){
         closedir(repertoire); // Fermer le rep
         
         // Afficher les features de data
-        /*
-        int index =1;
+        
+       /* int index =1;
         for (const auto& imageData : data) {
             std::cout << "Data " << index << " :" ;
             for (const auto& feature : imageData.features) {
