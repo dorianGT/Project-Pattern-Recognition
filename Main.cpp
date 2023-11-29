@@ -5,6 +5,7 @@ using namespace std;
 #include "knn.h"
 #include "kmeans.h"
 #include "UtilMethods.h"
+#include <ctime> 
 
 // Function to perform k-NN recognition for a given class
 // Parameters:
@@ -31,17 +32,22 @@ void knnRecognition(int numClasses, std::map<std::string, int> classDataMap) {
         vector<int> arrayK(20);
 
         // Vary the value of k from 1 to 6
+        clock_t start = clock();
         for (int k = 1; k <= 5; ++k) {
             // Reset the predicted labels for each iteration
             for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
+                
                 int c = knn(arr.data(), arr.size(), k, *t, numClasses);
+                
                 t->predictedLabel = c;
             }
             // Display results for the current value of k
             cout << "k = " << k << endl;
             arrayK[k - 1] = ShowResults(numClasses, test);
         }
-        
+        clock_t end = clock();
+        double time_taken = (end - start) / (double)CLOCKS_PER_SEC;
+        cout << "knnRecognition execution time: " << time_taken << " seconds" << endl;
         // Choose the best k based on the highest true positives
         int kbestval = 0;
         int maxVp = 0;
@@ -53,6 +59,7 @@ void knnRecognition(int numClasses, std::map<std::string, int> classDataMap) {
         }
         cout << "BEST K VALUE : " << kbestval + 1 << " WITH VP : " << maxVp << endl;
     }
+    
 }
 
 
@@ -80,10 +87,15 @@ void kmeansRecognition(int numClasses, std::map<std::string, int> classDataMap) 
         cout << "---------------------"<< endl;
 
         // Perform k-means
+        clock_t start = clock();
         kmeans(data,numClasses,centroids,100);
+        clock_t end = clock();
+        double time_taken = (end - start) / (double)CLOCKS_PER_SEC;
+        cout << "kMeansRecognition execution time: " << time_taken << " seconds" << endl;
         // Display results
         ShowResults(numClasses,data);
     }
+    
 }
 
 int main() {
@@ -114,4 +126,5 @@ int main() {
 
     return 0;
 }
+
 
