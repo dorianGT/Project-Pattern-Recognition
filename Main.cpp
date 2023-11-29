@@ -32,8 +32,8 @@ void knnRecognition(int numClasses, std::map<std::string, int> classDataMap) {
         vector<int> arrayK(20);
 
         // Vary the value of k from 1 to 6
-        clock_t start = clock();
         for (int k = 1; k <= 5; ++k) {
+            clock_t start = clock();
             // Reset the predicted labels for each iteration
             for (vector<ImageData>::iterator t = test.begin(); t != test.end(); ++t) {
                 
@@ -42,12 +42,12 @@ void knnRecognition(int numClasses, std::map<std::string, int> classDataMap) {
                 t->predictedLabel = c;
             }
             // Display results for the current value of k
-            cout << "k = " << k << endl;
+            cout <<"---------------------"<<endl<< "k = " << k << endl;
+            clock_t end = clock();
+            double time_taken = (end - start) / (double)CLOCKS_PER_SEC;
+            cout << "knnRecognition execution time: " << time_taken << " seconds" << endl;
             arrayK[k - 1] = ShowResults(numClasses, test);
         }
-        clock_t end = clock();
-        double time_taken = (end - start) / (double)CLOCKS_PER_SEC;
-        cout << "knnRecognition execution time: " << time_taken << " seconds" << endl;
         // Choose the best k based on the highest true positives
         int kbestval = 0;
         int maxVp = 0;
