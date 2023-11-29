@@ -12,6 +12,8 @@
 //   k: Number of nearest neighbors to consider
 //   testData: ImageData to be classified
 //   numClasses: Number of classes in the dataset
+// Returns:
+//   - The predicted class
 int knn(ImageData arr[], int n, int k, ImageData testData, int numClasses);
 
 #endif // KNN_H
