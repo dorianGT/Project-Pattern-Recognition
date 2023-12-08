@@ -9,6 +9,7 @@ struct ImageData {
     int predictedLabel; // Predicted class
     std::vector<float> features; // Feature vector
     double distance; // Distance from the test ImageData
+    int centroid_index; // The index of the centroid
 
     ImageData(int size) : features(size, 0) {} // Initialize the feature vector
 };

@@ -13,16 +13,22 @@ using namespace std;
 //   k: The number of clustersvoid
 void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k) {
     srand(time(nullptr)); // Seed for random number generation
+
+    std::vector<int> selectedIndex;
+
     // Continue until the desired number of centroids is reached
     while (centroids.size() < k) {
         int random_index = rand() % data.size(); // Choose a random index from the dataset
-        const ImageData& imageData = data[random_index];
-        const vector<float>& features = imageData.features;
-        // Create a new centroid 
-        centroid new_centroid(features.size()); // Create a new centroid with the same dimension as the feature vector
-        new_centroid.label = imageData.trueLabel; // Set the label of the centroid
-        new_centroid.features = features; // Set the features of the centroid
-        centroids.push_back(new_centroid); // Add the new centroid to the list     
+
+        if (std::find(selectedIndices.begin(), selectedIndices.end(), random_index) == selectedIndices.end()) {
+            const ImageData& imageData = data[random_index];
+            const vector<float>& features = imageData.features;
+            // Create a new centroid 
+            centroid new_centroid(features.size()); // Create a new centroid with the same dimension as the feature vector
+            new_centroid.features = features; // Set the features of the centroid
+            centroids.push_back(new_centroid); // Add the new centroid to the list    
+            selectedIndices.push_back(random_index); 
+        }
     }
 }
 
@@ -48,7 +54,7 @@ void assign_data_to_clusters(vector<ImageData>& data, vector<centroid>& centroid
         }
 
         // Assign data to the nearest centroid
-        data[i].predictedLabel = centroids[closest_centroid_index].label;
+        data[i].centroid_index = closest_centroid_index;
     }
 }
 
@@ -66,7 +72,7 @@ void update_centroids(vector<ImageData>& data, vector<centroid>& centroids) {
         // Iterate through all data points
         for (int j = 0; j < data.size(); j++) {
             // Check if the data point belongs to the current centroid's cluster
-            if (data[j].predictedLabel == centroids[i].label) {
+            if (data[j].centroid_index == i) {
                 // Accumulate the features of the data point to update the centroid
                 for (int k = 0; k < sum.size(); k++) {
                     sum[k] += data[j].features[k];
@@ -119,5 +125,8 @@ void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max
             break;
         }
     }
+
+    // Function to choose the label of each cluster, so the label of each image in the cluster
+
     cout << "Number of iterations: " << iteration << endl;
 }
