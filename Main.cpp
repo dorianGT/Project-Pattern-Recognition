@@ -88,7 +88,7 @@ void kmeansRecognition(int numClasses, std::map<std::string, int> classDataMap) 
 
         // Perform k-means
         clock_t start = clock();
-        kmeans(data,numClasses,centroids,100);
+        kmeans(data,numClasses,centroids,100,numClasses);
         clock_t end = clock();
         double time_taken = (end - start) / (double)CLOCKS_PER_SEC;
         cout << "kMeansRecognition execution time: " << time_taken << " seconds" << endl;

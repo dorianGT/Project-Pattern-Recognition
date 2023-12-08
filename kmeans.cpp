@@ -6,6 +6,16 @@
 #include "kmeans.h"
 using namespace std;
 
+bool vector_contains(const std::vector<int>& values, int val) {
+    for (size_t i = 0; i < values.size(); ++i) {
+        if (values[i] == val) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 // Initialize the centroids based on the initial configuration of the dataset
 // Parameters:
 //   centroids: Output vector to store the initialized centroids
@@ -14,13 +24,13 @@ using namespace std;
 void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k) {
     srand(time(nullptr)); // Seed for random number generation
 
-    std::vector<int> selectedIndex;
+    vector<int> selectedIndices;
 
     // Continue until the desired number of centroids is reached
     while (centroids.size() < k) {
         int random_index = rand() % data.size(); // Choose a random index from the dataset
 
-        if (std::find(selectedIndices.begin(), selectedIndices.end(), random_index) == selectedIndices.end()) {
+        if (!vector_contains(selectedIndices,random_index)) {
             const ImageData& imageData = data[random_index];
             const vector<float>& features = imageData.features;
             // Create a new centroid 
@@ -90,13 +100,44 @@ void update_centroids(vector<ImageData>& data, vector<centroid>& centroids) {
     }
 }
 
+void assign_label_to_data_cluster(vector<ImageData>& data, vector<centroid>& centroids,int numClasses) {
+
+    for (int i = 0; i < centroids.size(); i++) {
+        // Use an array to store frequencies of each class
+        vector<int> frequencies(numClasses, 0);
+        for(int j = 0;j<data.size();j++){
+            if(data[j].centroid_index == i){
+                frequencies[data[j].trueLabel - 1]++;
+            }
+        }
+    
+        // Find the class with the highest frequency among k neighbors
+        int maxFreq = frequencies[0];
+        int predictedClass = 0;
+        for (int i = 1; i < numClasses; ++i) {
+            if (frequencies[i] > maxFreq) {
+                maxFreq = frequencies[i];
+                predictedClass = i;
+            }
+        }
+
+        // Loop through all data points
+        for(int j = 0;j<data.size();j++){
+            if(data[j].centroid_index == i){
+                data[j].predictedLabel = predictedClass+1;
+            }
+        }
+    }
+}
+
 // Perform k-means clustering on the given dataset
 // Parameters:
 //   data: The dataset to be clustered
 //   k: The number of clusters
 //   centroids: Output vector to store the final centroids of the clusters
 //   max_iterations: The maximum number of iterations for the k-means algorithm
-void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max_iterations) {
+//   numClasses: Number of classes in the dataset
+void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max_iterations,int numClasses) {
     int iteration = 0;
     // Initialize centroids
     init_centroids(centroids, data, k);
@@ -127,6 +168,7 @@ void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max
     }
 
     // Function to choose the label of each cluster, so the label of each image in the cluster
+    assign_label_to_data_cluster(data, centroids,numClasses);
 
     cout << "Number of iterations: " << iteration << endl;
 }

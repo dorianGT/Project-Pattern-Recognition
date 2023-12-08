@@ -11,7 +11,8 @@
 //   k: The number of clusters
 //   centroids: Output vector to store the final centroids of the clusters
 //   max_iterations: The maximum number of iterations for the k-means algorithm
-void kmeans(std::vector<ImageData>& data, int k, std::vector<centroid>& centroids, int max_iterations);
+//   numClasses: Total number of classes in the dataset
+void kmeans(std::vector<ImageData>& data, int k, std::vector<centroid>& centroids, int max_iterations,int numClasses);
 
 // Update the centroids based on the current assignment of data points to clusters
 // Parameters:
@@ -31,5 +32,7 @@ void assign_data_to_clusters(std::vector<ImageData>& data, std::vector<centroid>
 //   data: The dataset used for initialization
 //   k: The number of clusters
 void init_centroids(std::vector<centroid>& centroids, const std::vector<ImageData>& data, int k);
+
+void assign_label_to_data_cluster(vector<ImageData>& data, vector<centroid>& centroids);
 
 #endif // KMEANS_H
