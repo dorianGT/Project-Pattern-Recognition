@@ -13,23 +13,16 @@ using namespace std;
 //   k: The number of clustersvoid
 void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k) {
     srand(time(nullptr)); // Seed for random number generation
-    set<int> unique_labels; // To ensure unique labels for centroids
-
     // Continue until the desired number of centroids is reached
     while (centroids.size() < k) {
         int random_index = rand() % data.size(); // Choose a random index from the dataset
         const ImageData& imageData = data[random_index];
         const vector<float>& features = imageData.features;
-
-        // Check if the label is unique, and create a new centroid if true
-        if (unique_labels.find(imageData.trueLabel) == unique_labels.end()) {
-            centroid new_centroid(features.size()); // Create a new centroid with the same dimension as the feature vector
-            new_centroid.label = imageData.trueLabel; // Set the label of the centroid
-            new_centroid.features = features; // Set the features of the centroid
-
-            unique_labels.insert(imageData.trueLabel); // Mark the label as used
-            centroids.push_back(new_centroid); // Add the new centroid to the list
-        }
+        // Create a new centroid 
+        centroid new_centroid(features.size()); // Create a new centroid with the same dimension as the feature vector
+        new_centroid.label = imageData.trueLabel; // Set the label of the centroid
+        new_centroid.features = features; // Set the features of the centroid
+        centroids.push_back(new_centroid); // Add the new centroid to the list     
     }
 }
 
