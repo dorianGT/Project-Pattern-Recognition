@@ -60,4 +60,12 @@ int ShowResults(int numClasses, vector<ImageData>& dataResult);
 //   - Vector of ImageData containing the retrieved data
 vector<ImageData> GetDataDirectory(string className, int numData, string classCategory);
 
+// Function to check if a specified value is present in a given vector
+// Parameters:
+//   - values: The vector to be checked
+//   - val: The value to be searched for in the vector
+// Returns:
+//   - true if the value is found in the vector, false otherwise
+bool vector_contains(const std::vector<int>& values, int val);
+
 #endif // UTILMETHODS_H

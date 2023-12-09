@@ -143,6 +143,7 @@ int ShowResults(int numClasses, vector<ImageData>& dataResult) {
     // Calculate and print the success percentage for this value of k
     double successPercentage = (static_cast<double>(vp) / dataResult.size()) * 100;
     printf("Success Percentage: %.2f%% , vp: %d\n", successPercentage, vp);
+    cout<<"---------------------"<<endl;
     return vp;
 }
 
@@ -190,3 +191,19 @@ vector<ImageData> GetDataDirectory(string className, int numData, string classCa
     }
     return arr;
 }
+
+// Function to check if a specified value is present in a given vector
+// Parameters:
+//   - values: The vector to be checked
+//   - val: The value to be searched for in the vector
+// Returns:
+//   - true if the value is found in the vector, false otherwise
+bool vector_contains(const std::vector<int>& values, int val) {
+    for (size_t i = 0; i < values.size(); ++i) {
+        if (values[i] == val) {
+            return true;
+        }
+    }
+    return false;
+}
+

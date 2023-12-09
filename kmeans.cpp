@@ -6,21 +6,11 @@
 #include "kmeans.h"
 using namespace std;
 
-bool vector_contains(const std::vector<int>& values, int val) {
-    for (size_t i = 0; i < values.size(); ++i) {
-        if (values[i] == val) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 // Initialize the centroids based on the initial configuration of the dataset
 // Parameters:
-//   centroids: Output vector to store the initialized centroids
-//   data: The dataset used for initialization
-//   k: The number of clustersvoid
+//   - centroids: Output vector to store the initialized centroids
+//   - data: The dataset used for initialization
+//   - k: The number of clustersvoid
 void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k) {
     srand(time(nullptr)); // Seed for random number generation
 
@@ -44,8 +34,8 @@ void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, 
 
 // Assign each data point to the cluster with the nearest centroid
 // Parameters:
-//   data: The dataset
-//   centroids: The current centroids of clusters
+//   - data: The dataset
+//   - centroids: The current centroids of clusters
 void assign_data_to_clusters(vector<ImageData>& data, vector<centroid>& centroids) {
     // Loop through all data points
     for (int i = 0; i < data.size(); i++) {
@@ -70,8 +60,8 @@ void assign_data_to_clusters(vector<ImageData>& data, vector<centroid>& centroid
 
 // Update the centroids based on the current assignment of data points to clusters
 // Parameters:
-//   data: The dataset
-//   centroids: The centroids of clusters to be updated
+//   - data: The dataset
+//   - centroids: The centroids of clusters to be updated
 void update_centroids(vector<ImageData>& data, vector<centroid>& centroids) {
     // Loop over all centroids
     for (int i = 0; i < centroids.size(); i++) {
@@ -100,31 +90,37 @@ void update_centroids(vector<ImageData>& data, vector<centroid>& centroids) {
     }
 }
 
-void assign_label_to_data_cluster(vector<ImageData>& data, vector<centroid>& centroids,int numClasses) {
-
+// Function to assign predicted labels to data points based on cluster centroids
+// Parameters:
+//   - data: Vector of ImageData containing the data points
+//   - centroids: Vector of centroid structures representing cluster centers
+//   - numClasses: Total number of classes in the dataset
+void assign_label_to_data_cluster(std::vector<ImageData>& data, std::vector<centroid>& centroids, int numClasses) {
     for (int i = 0; i < centroids.size(); i++) {
         // Use an array to store frequencies of each class
-        vector<int> frequencies(numClasses, 0);
-        for(int j = 0;j<data.size();j++){
-            if(data[j].centroid_index == i){
+        std::vector<int> frequencies(numClasses, 0);
+
+        // Count frequencies of true labels among data points assigned to the current centroid
+        for (int j = 0; j < data.size(); j++) {
+            if (data[j].centroid_index == i) {
                 frequencies[data[j].trueLabel - 1]++;
             }
         }
-    
-        // Find the class with the highest frequency among k neighbors
+
+        // Find the class with the highest frequency among data points assigned to the current centroid
         int maxFreq = frequencies[0];
         int predictedClass = 0;
-        for (int i = 1; i < numClasses; ++i) {
-            if (frequencies[i] > maxFreq) {
-                maxFreq = frequencies[i];
-                predictedClass = i;
+        for (int k = 1; k < numClasses; ++k) {
+            if (frequencies[k] > maxFreq) {
+                maxFreq = frequencies[k];
+                predictedClass = k;
             }
         }
 
-        // Loop through all data points
-        for(int j = 0;j<data.size();j++){
-            if(data[j].centroid_index == i){
-                data[j].predictedLabel = predictedClass+1;
+        // Assign the predicted label to all data points assigned to the current centroid
+        for (int j = 0; j < data.size(); j++) {
+            if (data[j].centroid_index == i) {
+                data[j].predictedLabel = predictedClass + 1;
             }
         }
     }
@@ -132,11 +128,11 @@ void assign_label_to_data_cluster(vector<ImageData>& data, vector<centroid>& cen
 
 // Perform k-means clustering on the given dataset
 // Parameters:
-//   data: The dataset to be clustered
-//   k: The number of clusters
-//   centroids: Output vector to store the final centroids of the clusters
-//   max_iterations: The maximum number of iterations for the k-means algorithm
-//   numClasses: Number of classes in the dataset
+//   - data: The dataset to be clustered
+//   - k: The number of clusters
+//   - centroids: Output vector to store the final centroids of the clusters
+//   - max_iterations: The maximum number of iterations for the k-means algorithm
+//   - numClasses: Number of classes in the dataset
 void kmeans(vector<ImageData>& data, int k, vector<centroid>& centroids, int max_iterations,int numClasses) {
     int iteration = 0;
     // Initialize centroids
