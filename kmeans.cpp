@@ -10,7 +10,7 @@ using namespace std;
 // Parameters:
 //   - centroids: Output vector to store the initialized centroids
 //   - data: The dataset used for initialization
-//   - k: The number of clustersvoid
+//   - k: The number of clusters
 void init_centroids(vector<centroid>& centroids, const vector<ImageData>& data, int k) {
     srand(time(nullptr)); // Seed for random number generation
 
